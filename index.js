@@ -7,23 +7,30 @@ const fetchData = async (searchTerm) => {
     },
   });
 
-  console.log(response.data);
+  if (response.data.Error) {
+      return [];
+  }
+
+  return response.data.Search;
 };
 
 const input = document.querySelector("input");
 
-let timeoutId;
 
-const onInput = (e) => {
-    // on input change, check if a timeoutId is defined and clear it
-    if (timeoutId) {
-        clearTimeout(timeoutId)
+const onInput = debounce( async (e) => {
+    const movies = await fetchData(e.target.value);
+    
+    for (let movie of movies) {
+        const div = document.createElement("div");
+
+        div.innerHTML = `
+        <img src="${movie.Poster}" />
+        <h1>${movie.Title}</h1>
+    `;
+
+        document.querySelector('#target').appendChild(div)
     }
 
-    // wait 1 second before searching for movie
-  timeoutId = setTimeout(() => {
-    fetchData(e.target.value);
-  }, 500);
-};
+}, 500);
 
 input.addEventListener("input", onInput);
